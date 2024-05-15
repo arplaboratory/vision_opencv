@@ -12,11 +12,17 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra)
 endif()
 
+file(GLOB OpenCV_LIBS "/usr/lib64/libopencv*.so")
+include_directories(include /usr/include/opencv4/)
+
+
 if(ANDROID)
   find_package(Boost REQUIRED)
   set(boost_python_target "")
 else()
-  find_package(Python3 REQUIRED COMPONENTS Development NumPy)
+  #find_package(Python3 REQUIRED COMPONENTS Development NumPy)
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
   find_package(Boost QUIET)
   if(Boost_VERSION_STRING VERSION_LESS "1.67")
     # This is a bit of a hack to suppress a warning
@@ -36,22 +42,22 @@ endif()
 find_package(rcpputils REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
-find_package(OpenCV 4 QUIET
-  COMPONENTS
-    opencv_core
-    opencv_imgproc
-    opencv_imgcodecs
-  CONFIG
-)
-if(NOT OpenCV_FOUND)
-  find_package(OpenCV 3 REQUIRED
-    COMPONENTS
-      opencv_core
-      opencv_imgproc
-      opencv_imgcodecs
-    CONFIG
-  )
-endif()
+#find_package(OpenCV 4 QUIET
+#  COMPONENTS
+#    opencv_core
+#    opencv_imgproc
+#    opencv_imgcodecs
+#  CONFIG
+#)
+#if(NOT OpenCV_FOUND)
+#  find_package(OpenCV 3 REQUIRED
+#    COMPONENTS
+#      opencv_core
+#      opencv_imgproc
+#      opencv_imgcodecs
+#    CONFIG
+#  )
+#endif()
 
 if(NOT ANDROID)
   ament_python_install_package(${PROJECT_NAME}
@@ -67,12 +73,7 @@ add_subdirectory(src)
 # This is overwritten each loop, but which one it points to doesn't really matter.
 set(cv_bridge_lib_dir "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
 
-if(BUILD_TESTING)
-  add_subdirectory(test)
-endif()
-
 ament_export_dependencies(
-  OpenCV
   sensor_msgs
 )
 
